@@ -40,7 +40,7 @@ module Runa
         job.fail!(e)
         log "\e[4;33mFailed", job
       end
-      Runa.after_work_callback.call(self, job) if Runa.before_work_callback.is_a?(Proc)
+      Runa.after_work_callback.call(self, job) if Runa.after_work_callback.is_a?(Proc)
     end
     
     def log(string, job = nil)
