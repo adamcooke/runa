@@ -9,8 +9,7 @@ module Runa
       @identifier = "#{Socket.gethostname}:#{Process.pid}"
     end
     
-    ## Start polling for jobs and running those which you find. Also register itself with the
-    ## 'workers' list.
+    ## Start polling for jobs and running those which you find
     def work
       trap("TERM") { log("Exiting.."); $exit = true }
       trap("INT")  { log("Exiting..."); $exit = true }
@@ -19,17 +18,17 @@ module Runa
       loop do
         break if $exit
         if job = QueuedJob.next_job
-          log "\e[4;32mStart Processing\e[0m", job
           begin
+            log "\e[4;32mStarted: #{job.payload_object.class.to_s}\e[0m", job
             job.payload_object.worker = self.identifier
             job.payload_object.job_id = job.identifier
             job.payload_object.perform
             job.complete!
-            log "\e[4;33mJob Completed\e[0m", job
+            log "\e[4;33mCompleted: #{job.payload_object.class.to_s}\e[0m", job
           rescue => e
             job.fail!(e)
+            log "\e[4;33mFailed", job
           end
-          
         else
           sleep 1
         end
