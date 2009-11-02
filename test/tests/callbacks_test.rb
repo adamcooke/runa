@@ -9,7 +9,7 @@ class TestCallbacks < Test::Unit::TestCase
   end
   
   def test_callbacks
-    job = ExampleJob.queue
+    job = ExampleCallbackJob.queue
     $global_a = nil
     $global_b = nil
     Runa.before_work_callback = Proc.new{|worker, job| $global_a = :before_invoked}
@@ -22,7 +22,7 @@ class TestCallbacks < Test::Unit::TestCase
   
 end
 
-class ExampleJob < Runa::Job
+class ExampleCallbackJob < Runa::Job
   def perform
     "Hello"
   end
