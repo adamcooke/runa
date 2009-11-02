@@ -9,8 +9,9 @@ module Runa
       @identifier = "#{Socket.gethostname}:#{Process.pid}"
     end
     
+    ## Start polling for jobs and running those which you find. Also register itself with the
+    ## 'workers' list.
     def work
-      
       trap("TERM") { log("Exiting.."); $exit = true }
       trap("INT")  { log("Exiting..."); $exit = true }
       

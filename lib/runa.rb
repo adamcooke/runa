@@ -18,11 +18,18 @@ module Runa
     attr_accessor :redis_server
     attr_accessor :redis_port
     
+    ## Prefix to add to all key names
+    attr_accessor :key_prefix
+    
     ## The logger which should be used for logging and task activity
     attr_writer :logger
     
     def logger
       @logger ||= Logger.new(STDOUT)
+    end
+    
+    def key_prefix
+      @key_prefix || ""
     end
     
     ## The backend Redis connection object which is used for all database communications
@@ -33,20 +40,20 @@ module Runa
     
     ## Push a value into a list. If the value is not a string, serialize it using YAML before
     ## saving.
-    def push(list, value)
+    def push(key, value)
       value = YAML::dump(value) unless value.is_a?(String)
-      backend.push_tail(list.to_s, value)
+      backend.push_tail(key_prefix + key.to_s, value)
     end
     
     ## Pull the next value from a given list.
-    def pull(list)
-      value = backend.pop_head(list.to_s)
+    def pull(key)
+      value = backend.pop_head(key_prefix + key.to_s)
       value.nil? ? String.new : YAML::load(value)
     end
     
     ## Empty a named list (delete it)
-    def delete(list)
-      backend.delete(list.to_s)
+    def delete(key)
+      backend.delete(key_prefix + key.to_s)
     end
     
     ## Log something
@@ -57,6 +64,11 @@ module Runa
       else
         self.logger.send(sev, identifier) { string }
       end
+    end
+    
+    ## Get a list...
+    def get_list(key)
+      backend.list_range(key_prefix + key, 0, -1).reverse.map{|l| YAML.load(l)}
     end
         
   end

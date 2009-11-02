@@ -4,6 +4,8 @@ class TestJobs < Test::Unit::TestCase
   
   def setup
     Runa.delete("jobs")
+    Runa.delete("jobs:completed")
+    Runa.delete("jobs:failed")
   end
   
   def test_adding_jobs
@@ -25,6 +27,16 @@ class TestJobs < Test::Unit::TestCase
   def test_jobs_can_be_queued_using_inherited_job_class
     assert ExampleJob2.queue(234).is_a?(Runa::QueuedJob)
     assert_equal "Another ID: 234", Runa::QueuedJob.next_job.payload_object.perform
+  end
+  
+  def test_failed_jobs_are_stored
+    original_job = ExampleFailingJob.queue
+    begin
+      original_job.payload_object.perform
+    rescue => e
+      original_job.fail!(e)
+    end
+    assert_equal Runa::QueuedJob.failed.first.identifier, original_job.identifier
   end
   
 end
@@ -49,6 +61,14 @@ class ExampleJob2 < Runa::Job
   
   def perform
     "Another ID: #{@id}"
+  end
+  
+end
+
+class ExampleFailingJob < Runa::Job
+  
+  def perform
+    raise "This is an error which you don't need to care about..."
   end
   
 end
