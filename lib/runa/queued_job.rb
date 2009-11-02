@@ -87,15 +87,11 @@ module Runa
       
       ## Get the latest failed jobs
       def failed
-        Runa.backend.list_range('jobs:failed', 0, -10)
+        Runa.backend.list_range('jobs:failed', 0, -1).reverse.map{|c| new(c) }
       end
       
       def queued
-        Runa.backend.list_range('jobs', 0, -100)
-      end
-      
-      def completed
-        Runa.backend.list_range('jobs:completed', 0, -10)
+        Runa.backend.list_range('jobs', 0, -1).reverse.map{|c| new(c) }
       end
       
     end
