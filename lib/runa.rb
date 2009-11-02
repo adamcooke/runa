@@ -19,8 +19,12 @@ module Runa
     attr_accessor :redis_port
     
     ## The logger which should be used for logging and task activity
-    attr_accessor :logger
-        
+    attr_writer :logger
+    
+    def logger
+      @logger ||= Logger.new(STDOUT)
+    end
+    
     ## The backend Redis connection object which is used for all database communications
     ## within the library.
     def backend
@@ -44,12 +48,7 @@ module Runa
     def delete(list)
       backend.delete(list.to_s)
     end
-    
-  end
-  
-  unless self.logger
-    self.logger = Logger.new("runa.log")
-    self.logger.datetime_format = "%Y-%m-%d %H:%M:%S"
+        
   end
   
 end

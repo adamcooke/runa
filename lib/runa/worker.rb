@@ -27,7 +27,6 @@ module Runa
             log "\e[4;33mJob Completed\e[0m", job
           rescue => e
             job.fail!(e)
-            log "\e[4;31mJob Failed\e[0m", job
           end
           
         else

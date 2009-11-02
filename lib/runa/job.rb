@@ -1,6 +1,6 @@
 module Runa
   class Job
-    
+        
     attr_accessor :worker, :job_id
     
     def self.queue(*params)
