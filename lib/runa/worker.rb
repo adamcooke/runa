@@ -39,7 +39,7 @@ module Runa
     
     def log(string, job = nil)
       id = (job ? "#{identifier} [#{job.identifier}]" : identifier )
-      Runa.logger.info(id) { string }
+      Runa.log :info, string, id
     end
     
   end

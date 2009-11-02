@@ -8,7 +8,7 @@ module Runa
     end
     
     def puts(text)
-      Runa.logger.debug("#{worker} [#{job_id}]") { "\e[37m#{text}\e[0m" }
+      Runa.log :debug, "\e[37m#{text}\e[0m", "#{worker} [#{job_id}]"
     end
     alias_method :log, :puts
     

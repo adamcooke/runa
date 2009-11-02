@@ -48,6 +48,16 @@ module Runa
     def delete(list)
       backend.delete(list.to_s)
     end
+    
+    ## Log something
+    def log(sev, string, identifier = nil)
+      if defined?(RAILS_ENV)
+        string.gsub!(/^\n/, '')
+        self.logger.send(sev, "[#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}] -- #{identifier}: #{string}")
+      else
+        self.logger.send(sev, identifier) { string }
+      end
+    end
         
   end
   

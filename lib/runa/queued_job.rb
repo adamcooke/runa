@@ -34,7 +34,7 @@ module Runa
     end
     
     def failed!(e)
-      Runa.logger.info e.message
+      Runa.log :info, e.message
       Runa.push "jobs_failed", self.attributes
     end
     
