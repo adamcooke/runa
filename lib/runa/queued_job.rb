@@ -27,6 +27,15 @@ module Runa
       @payload_object ||= deserialize(self.attributes['handler'])
     end
     
+    
+    def complete!
+      Runa.push "jobs:completed", self.attributes
+    end
+    
+    def failed!(e)
+      Runa.push "jobs:failed", self.attributes
+    end
+    
     private
     
     ## Deserialize the passed YAML handler and return an object which we can invoke properly.
@@ -44,11 +53,9 @@ module Runa
 
       return handler if handler.respond_to?(:perform)
 
-      raise DeserializationError,
-        'Job failed to load: Unknown handler. Try to manually require the appropiate file.'
+      raise DeserializationError, 'Job failed to load: Unknown handler. Try to manually require the appropiate file.'
     rescue TypeError, LoadError, NameError => e
-      raise DeserializationError,
-        "Job failed to load: #{e.message}. Try to manually require the required file."
+      raise DeserializationError, "Job failed to load: #{e.message}. Try to manually require the required file."
     end
 
     class << self
@@ -57,7 +64,8 @@ module Runa
       def queue(obj)
         o = {}
         o['handler']     = YAML.dump(obj)
-        o['identifier']  = Digest::SHA1.hexdigest("#{Time.now.utc.to_s}+#{o[:handler]}")[0,13]
+        value = Digest::SHA1.hexdigest(o['handler'] + "#{Time.now.utc.to_s}")
+        o['identifier']  = value[0,13]
         Runa.push "jobs", o
         new(o)
       end

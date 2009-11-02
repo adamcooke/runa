@@ -4,6 +4,7 @@
 
 require 'yaml'
 require 'redis'
+require 'logger'
 
 require 'runa/job'
 require 'runa/queued_job'
@@ -19,7 +20,7 @@ module Runa
     
     ## The logger which should be used for logging and task activity
     attr_accessor :logger
-    
+        
     ## The backend Redis connection object which is used for all database communications
     ## within the library.
     def backend
@@ -44,6 +45,11 @@ module Runa
       backend.delete(list.to_s)
     end
     
+  end
+  
+  unless self.logger
+    self.logger = Logger.new("runa.log")
+    self.logger.datetime_format = "%Y-%m-%d %H:%M:%S"
   end
   
 end

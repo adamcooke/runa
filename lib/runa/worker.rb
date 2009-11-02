@@ -1,18 +1,46 @@
+require 'socket'
+
 module Runa
   class Worker
     
-    def initialize(identifier)
-      @identifier = identifier
+    attr_reader :identifier
+    
+    def initialize
+      @identifier = "#{Socket.gethostname}:#{Process.pid}"
     end
     
     def work
+      
+      trap("TERM") { log("Exiting.."); $exit = true }
+      trap("INT")  { log("Exiting..."); $exit = true }
+      
+      log "Started Runa Worker"
       loop do
-        if j = QueuedJob.next_job
-          j.payload_object.perform
-          puts "Run Job: #{j.identifier}"
+        break if $exit
+        if job = QueuedJob.next_job
+          log "\e[4;32mStart Processing\e[0m", job
+          begin
+            job.payload_object.worker = self.identifier
+            job.payload_object.job_id = job.identifier
+            job.payload_object.perform
+            job.complete!
+            log "\e[4;33mJob Completed\e[0m", job
+          rescue => e
+            job.fail!(e)
+            log "\e[4;31mJob Failed\e[0m", job
+          end
+          
+        else
+          sleep 1
         end
-        sleep 1
       end
+    end
+    
+    private
+    
+    def log(string, job = nil)
+      id = (job ? "#{identifier} [#{job.identifier}]" : identifier )
+      Runa.logger.info(id) { string }
     end
     
   end
