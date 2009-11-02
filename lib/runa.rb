@@ -21,6 +21,10 @@ module Runa
     ## Prefix to add to all key names
     attr_accessor :key_prefix
     
+    ## Callbacks to run whenever jobs are executed by the workers.
+    attr_accessor :before_work_callback
+    attr_accessor :after_work_callback
+    
     ## The logger which should be used for logging and task activity
     attr_writer :logger
     

@@ -18,17 +18,7 @@ module Runa
       loop do
         break if $exit
         if job = QueuedJob.next_job
-          begin
-            log "\e[4;32mStarted: #{job.payload_object.class.to_s}\e[0m", job
-            job.payload_object.worker = self.identifier
-            job.payload_object.job_id = job.identifier
-            job.payload_object.perform
-            job.complete!
-            log "\e[4;33mCompleted: #{job.payload_object.class.to_s}\e[0m", job
-          rescue => e
-            job.fail!(e)
-            log "\e[4;33mFailed", job
-          end
+          perform_job(job)
         else
           sleep 1
         end
@@ -36,6 +26,22 @@ module Runa
     end
     
     private
+    
+    def perform_job(job)
+      Runa.before_work_callback.call(self, job) if Runa.before_work_callback.is_a?(Proc)
+      begin
+        log "\e[4;32mStarted: #{job.payload_object.class.to_s}\e[0m", job
+        job.payload_object.worker = self.identifier
+        job.payload_object.job_id = job.identifier
+        job.payload_object.perform
+        job.complete!
+        log "\e[4;33mCompleted: #{job.payload_object.class.to_s}\e[0m", job
+      rescue => e
+        job.fail!(e)
+        log "\e[4;33mFailed", job
+      end
+      Runa.after_work_callback.call(self, job) if Runa.before_work_callback.is_a?(Proc)
+    end
     
     def log(string, job = nil)
       id = (job ? "#{identifier} [#{job.identifier}]" : identifier )
