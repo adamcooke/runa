@@ -7,6 +7,7 @@ require 'redis'
 
 require 'runa/job'
 require 'runa/queued_job'
+require 'runa/worker'
 
 module Runa
   
