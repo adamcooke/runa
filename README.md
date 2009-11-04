@@ -1,3 +1,5 @@
+**NOTE:** This won't actually be maintained anymore in favour of [Resque](http://github.com/adamcooke/resque)
+
 #Runa
 
 Runa is a simple Redis-powered background job runner library. It allows you to easily create
